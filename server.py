@@ -9,8 +9,7 @@ API_HASH = 'ea9e02373562fa1b888cee955f66e35a'
 BOT_TOKEN = '8000177324:AAHISycS0-YiiEAbMDsXA3X4ZD-l3xvZdg0'
 CHANNEL_USERNAME = 'naughtyfilter' 
 
-# RENDER REQUIRES THIS CHANGE:
-# We get the PORT from the Environment, or default to 8080 if testing locally
+# RENDER CONFIG
 PORT = int(os.environ.get("PORT", 8080))
 HOST = '0.0.0.0'
 # =================================================
@@ -27,6 +26,11 @@ async def stop_telegram(app):
 
 async def root_handler(request):
     return web.Response(text="Naughty Filter Server is Running on Render!", content_type='text/html')
+
+# --- NEW: VERIFICATION HANDLER ---
+async def verify_handler(request):
+    # This matches the filename ExoClick gave you
+    return web.FileResponse('./e81f9868d1f9f7695b60002f873ed95f.html')
 
 async def stream_handler(request):
     try:
@@ -77,6 +81,11 @@ async def stream_handler(request):
 
 app = web.Application()
 app.router.add_get('/', root_handler)
+
+# --- NEW: ADD THE VERIFICATION ROUTE ---
+# This tells the server: "When someone asks for this file, show it to them"
+app.router.add_get('/e81f9868d1f9f7695b60002f873ed95f.html', verify_handler)
+
 app.router.add_get('/stream/{msg_id}', stream_handler)
 app.on_startup.append(start_telegram)
 app.on_cleanup.append(stop_telegram)
